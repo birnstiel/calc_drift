@@ -1,0 +1,7 @@
+*.so
+*.so.dSYM
+*.o
+*.mod
+.DS_Store
+/build/
+*.egg-info

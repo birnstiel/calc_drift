@@ -4,7 +4,7 @@
 MODULE constants
   IMPLICIT NONE
   INTEGER :: n_r
-  doubleprecision :: pi,k_b,mu,m_p,Grav,M_sun,AU,sig_sb
+  doubleprecision :: pi,k_b,mu,m_p,Grav,M_sun,AU,sig_sb,sig_h2
 
   ! first some general constants
   PARAMETER(pi       = 3.141593)        ! PI
@@ -15,6 +15,8 @@ MODULE constants
   PARAMETER(M_sun    = 1.989d33)        ! mass of the sun in g
   PARAMETER(AU       = 1.496d13)        ! astronomical unit in cm
   PARAMETER(sig_sb   = 5.670512d-5)     ! Stefan-Boltzmann constant in g s^-3 K^-4
+  parameter(sig_h2    = 2d-15)          ! cross section of H2
+
 
   ! now the constants of the simulation
   PARAMETER(n_r      = 100)             ! the number of space cells

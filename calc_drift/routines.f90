@@ -19,28 +19,26 @@
 !                dust_flux_o      = dust "accretion" to universe outside the grid
 !                dust_flux()      = flux at each grid point
 ! _____________________________________________________________________________
-subroutine duststep_donorcell(dt,rho_s,grainsize,grainmass,x,x05,sigma_g,T,sigma_dot,sigma1,sigma2,dust_accretion,dust_flux_o &
-                                &,v_drift,v_05,flim,Diff,r_min,v_gas,dust_flux,&
+subroutine duststep_donorcell(dt,grainsize,grainmass,x,x05,sigma_g,T,sigma_dot,sigma1,sigma2,dust_accretion,dust_flux_o &
+                                &,v_drift,v_05,flim,Diff,v_gas,dust_flux,&
                                 &coagulation_method,A,B,C,D)
-use constants, ONLY:n_r,pi,Grav,mu,m_p,k_b,sig_sb,AU,M_sun
-use variables, ONLY:M_star,alpha,dust_floor,Sc,gas2dust_ratio,stokes_factor,peak_position
+use constants, ONLY:n_r,pi,Grav,mu,m_p,k_b
+use variables, ONLY:M_star,alpha,Sc,peak_position
 use switches,  ONLY:dust_diffusion,dust_radialdrift,dust_drag,drift_fudge_factor
 implicit none
-doubleprecision, intent(in)    :: dt,rho_s,grainsize,grainmass
+doubleprecision, intent(in)    :: dt,grainsize,grainmass
 doubleprecision, intent(in)    :: x(1:n_r),x05(1:n_r),sigma_g(1:n_r),T(1:n_r),sigma_dot(1:n_r),v_gas(1:n_r)
 doubleprecision, intent(inout) :: sigma1(1:n_r)
 doubleprecision, intent(out)   :: sigma2(1:n_r),dust_accretion,dust_flux_o
 doubleprecision, intent(out)   :: Diff(1:n_r),v_drift(1:n_r),v_05(1:n_r),flim(1:n_r),dust_flux(1:n_r)
 doubleprecision, intent(out)   :: A(1:n_r),B(1:n_r),C(1:n_r),D(1:n_r)
-integer, intent(in)            :: r_min,coagulation_method
+integer, intent(in)            :: coagulation_method
 
 doubleprecision :: T_05(1:n_r), sigma_g_05(1:n_r),cs_05(1:n_r),v_total ! interface values
 doubleprecision :: u(1:n_r),u_old(1:n_r),g(1:n_r),h(1:n_r),k(1:n_r),l(1:n_r)
-integer         :: n,row,col,info,dummyvector(1:n_r)
-doubleprecision :: error(1:n_r)=0.d0
-doubleprecision :: St,f_1_2,v_dr,v_dr_old
+integer         :: n
+doubleprecision :: St,v_dr,v_dr_old
 doubleprecision :: get_St      ! function: calculates the stokes number
-logical :: number_invalid
 
 ! first, calculate all the half-step arrays:
 ! temperature, gas surface density, dust diffusion coefficient and drift velocity
@@ -336,3 +334,90 @@ endif
 
 end subroutine impl_donorcell_adv_diff_delta
 ! =============================================================================
+
+
+! _____________________________________________________________________________
+! the tridag routine from Numerical Recipes in F77 rewritten to F95
+!
+! where:    a         =    lower diagonal entries
+!            b        =    diagonal entries
+!            c        =    upper diagonal entries
+!            r        =    right hand side vector
+!            u        =    result vector
+!            n        =    size of the vectors
+! _____________________________________________________________________________
+subroutine tridag(a,b,c,r,u,n)
+integer        :: n
+doubleprecision    :: a(n),b(n),c(n),r(n),u(n)
+integer, parameter :: NMAX=10000000
+doubleprecision    :: bet,gam(NMAX)
+integer :: j
+
+
+if (b(1).eq.0.) stop 'tridag: rewrite equations'
+
+bet = b(1)
+
+u(1)=r(1)/bet
+
+do j=2,n
+    gam(j)    = c(j-1)/bet
+    bet    = b(j)-a(j)*gam(j)
+    if(bet.eq.0.) stop 'tridag failed'
+    u(j)    = (r(j)-a(j)*u(j-1))/bet
+enddo
+
+do j=n-1,1,-1
+    u(j)=u(j)-gam(j+1)*u(j+1)
+enddo
+end subroutine tridag
+! =============================================================================
+
+! ____________________________________________________________________________
+! calculates stokes number
+!
+! INPUT:    a       = grain size
+!           T       = temperature
+!           sigma   = surface density
+!           R       = radius
+!
+! RETURNS:  stokes number of paticle
+!
+! ____________________________________________________________________________
+double precision function get_ST(a,T,sigma,R)
+use constants,ONLY: pi,mu,m_p,sig_h2,k_b,Grav
+use variables,ONLY: m_star,rho_s,stokes_factor
+use switches, ONLY: stokes_regime
+implicit none
+doubleprecision,intent(in) :: a
+doubleprecision,intent(in) :: T
+doubleprecision,intent(in) :: sigma
+doubleprecision,intent(in) :: R
+
+doubleprecision :: lambda
+doubleprecision :: cs
+doubleprecision :: n
+doubleprecision :: omega_k
+doubleprecision :: H
+
+cs      = sqrt(k_b*T/mu/m_p)
+omega_k = sqrt(Grav*M_star/R**3d0)
+H       = cs/omega_k
+n       = sigma/(sqrt(2*pi)*H*m_p)
+lambda  = 0.5d0/(sig_h2*n)
+
+!
+! check if we are in the Eppstein regime
+! else, we are in the stokes regime
+!
+if ((a/lambda<9d0/4d0).or.(stokes_regime==0)) then
+    get_ST = a*rho_s/sigma*stokes_factor
+else
+    !
+    ! assume to be in the first stokes regime
+    !
+    get_ST = 2d0*pi/9d0  *a*a*rho_s/sigma/lambda
+endif
+
+end function get_ST
+! ============================================================================

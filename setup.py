@@ -1,7 +1,7 @@
 """
 Setup file for the drift speed package.
 """
-from numpy.distutils.core import Extension, setup, find_packages
+from numpy.distutils.core import Extension, setup
 import os
 
 setup(
@@ -13,7 +13,7 @@ setup(
     url='http://www.til-birnstiel.de',
     author='Til Birnstiel',
     author_email='birnstiel@me.com',
-    packages=find_packages(),
+    packages=['calc_drift'],
     license='GPLv3',
     include_package_data=True,
     setup_requires=['setuptools_scm'],
@@ -28,7 +28,7 @@ setup(
                 'calc_drift/switches.f90',
                 'calc_drift/variables.f90',
                 ],
-            include_dirs='calc_drift/'
+            include_dirs=['calc_drift/']
             )
         ],
     )
