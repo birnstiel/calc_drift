@@ -21,8 +21,8 @@
 ! _____________________________________________________________________________
 subroutine duststep_donorcell(dt,grainsize,grainmass,x,x05,sigma_g,T,sigma_dot,sigma1,sigma2,dust_accretion,dust_flux_o &
                                 &,v_drift,v_05,flim,Diff,v_gas,dust_flux,&
-                                &coagulation_method,A,B,C,D)
-use constants, ONLY:n_r,pi,Grav,mu,m_p,k_b
+                                &coagulation_method,A,B,C,D,n_r)
+use constants, ONLY:pi,Grav,mu,m_p,k_b
 use variables, ONLY:M_star,alpha,Sc,peak_position
 use switches,  ONLY:dust_diffusion,dust_radialdrift,dust_drag,drift_fudge_factor
 implicit none
@@ -32,7 +32,7 @@ doubleprecision, intent(inout) :: sigma1(1:n_r)
 doubleprecision, intent(out)   :: sigma2(1:n_r),dust_accretion,dust_flux_o
 doubleprecision, intent(out)   :: Diff(1:n_r),v_drift(1:n_r),v_05(1:n_r),flim(1:n_r),dust_flux(1:n_r)
 doubleprecision, intent(out)   :: A(1:n_r),B(1:n_r),C(1:n_r),D(1:n_r)
-integer, intent(in)            :: coagulation_method
+integer, intent(in)            :: coagulation_method,n_r
 
 doubleprecision :: T_05(1:n_r), sigma_g_05(1:n_r),cs_05(1:n_r),v_total ! interface values
 doubleprecision :: u(1:n_r),u_old(1:n_r),g(1:n_r),h(1:n_r),k(1:n_r),l(1:n_r)
