@@ -23,10 +23,10 @@ setup(
         Extension(
             name='calc_drift.routines',
             sources=[
-                'calc_drift/routines.f90',
                 'calc_drift/constants.f90',
                 'calc_drift/switches.f90',
                 'calc_drift/variables.f90',
+                'calc_drift/routines.f90'
                 ],
             include_dirs=['calc_drift/']
             )

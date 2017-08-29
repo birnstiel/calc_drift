@@ -1,3 +1,2 @@
-include tests/*.ipynb
-include README.md
+include Readme.md
 include LICENSE
