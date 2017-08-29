@@ -1,2 +1,5 @@
 include Readme.md
 include LICENSE
+notebook/call_routine.ipynb
+Makefile
+calc_drift/*.f90

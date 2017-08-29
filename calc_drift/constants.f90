@@ -3,7 +3,7 @@
 ! ___________________________________________________________________________________________
 MODULE constants
   IMPLICIT NONE
-  INTEGER :: n_r
+  !INTEGER :: n_r
   doubleprecision :: pi,k_b,mu,m_p,Grav,M_sun,AU,sig_sb,sig_h2
 
   ! first some general constants
@@ -19,7 +19,7 @@ MODULE constants
 
 
   ! now the constants of the simulation
-  PARAMETER(n_r      = 100)             ! the number of space cells
+  !PARAMETER(n_r      = 100)             ! the number of space cells
 
 END MODULE constants
 ! ===========================================================================================

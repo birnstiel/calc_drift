@@ -2,6 +2,7 @@
 *.so.dSYM
 *.o
 *.mod
+*.pyc
 .DS_Store
 /build/
 *.egg-info
